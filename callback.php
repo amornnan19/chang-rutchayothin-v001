@@ -54,31 +54,64 @@ if (isset($_GET['code'])) {
                 'picture_url' => $profileData['pictureUrl'] ?? null
             ];
 
-            // Step 3: ส่งข้อมูลไปยัง Supabase
+            // ตรวจสอบว่าผู้ใช้มีอยู่แล้วใน Supabase หรือไม่
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $supabaseUrl . '/rest/v1/users'); // ใช้ endpoint สำหรับตาราง users
-            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_URL, $supabaseUrl . '/rest/v1/users?user_id=eq.' . $profileData['userId']);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
                 'apikey: ' . $supabaseKey,
-                'Authorization: Bearer ' . $supabaseKey,
-                'Prefer: return=representation'
+                'Authorization: Bearer ' . $supabaseKey
             ]);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($userData));
 
-            $supabaseResponse = curl_exec($ch);
+            $existingUserResponse = curl_exec($ch);
             curl_close($ch);
 
-            $result = json_decode($supabaseResponse, true);
-            if (isset($result[0])) {
-                echo 'ข้อมูลถูกเก็บใน Supabase เรียบร้อยแล้ว';
+            $existingUser = json_decode($existingUserResponse, true);
 
-                // หลังจากที่บันทึกข้อมูลลงใน Supabase เรียบร้อยแล้ว
+            if (!empty($existingUser)) {
+                // ถ้ามีผู้ใช้อยู่แล้ว ให้ทำการอัปเดตข้อมูลแทน
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $supabaseUrl . '/rest/v1/users?user_id=eq.' . $profileData['userId']);
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    'Content-Type: application/json',
+                    'apikey: ' . $supabaseKey,
+                    'Authorization: Bearer ' . $supabaseKey
+                ]);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($userData));
+
+                $supabaseResponse = curl_exec($ch);
+                curl_close($ch);
+
+                echo 'ข้อมูลผู้ใช้ถูกอัปเดตใน Supabase เรียบร้อยแล้ว';
                 header("Location: changrutchayothln://HomePage");
                 exit();
             } else {
-                echo 'ไม่สามารถเก็บข้อมูลใน Supabase ได้: ' . htmlspecialchars(print_r($result, true));
+                // ถ้าไม่มีผู้ใช้ ให้ทำการ Insert ข้อมูลใหม่
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $supabaseUrl . '/rest/v1/users');
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    'Content-Type: application/json',
+                    'apikey: ' . $supabaseKey,
+                    'Authorization: Bearer ' . $supabaseKey,
+                    'Prefer: return=representation'
+                ]);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($userData));
+
+                $supabaseResponse = curl_exec($ch);
+                curl_close($ch);
+
+                $result = json_decode($supabaseResponse, true);
+                if (isset($result[0])) {
+                    echo 'ข้อมูลผู้ใช้ถูกบันทึกใน Supabase เรียบร้อยแล้ว';
+                    header("Location: changrutchayothln://HomePage");
+                    exit();
+                } else {
+                    echo 'ไม่สามารถบันทึกข้อมูลใน Supabase ได้: ' . htmlspecialchars(print_r($result, true));
+                }
             }
         } else {
             echo '<p>ไม่สามารถดึงข้อมูลโปรไฟล์ผู้ใช้ได้</p>';
