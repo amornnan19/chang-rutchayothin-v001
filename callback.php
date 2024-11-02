@@ -86,7 +86,7 @@ if (isset($_GET['code'])) {
 
                 echo 'ข้อมูลผู้ใช้ถูกอัปเดตใน Supabase เรียบร้อยแล้ว';
                 echo '<p>การเข้าสู่ระบบเสร็จสมบูรณ์แล้ว</p>';
-                echo '<a href="changrutchayothln://HomePage">คลิกที่นี่เพื่อกลับไปยังแอป</a>';
+                echo '<a href="changrutchayothln://changrutchayothin.com/HomePage">คลิกที่นี่เพื่อกลับไปยังแอป</a>';
             } else {
                 // ถ้าไม่มีผู้ใช้ ให้ทำการ Insert ข้อมูลใหม่
                 $ch = curl_init();
@@ -108,7 +108,7 @@ if (isset($_GET['code'])) {
                 if (isset($result[0])) {
                     echo 'ข้อมูลผู้ใช้ถูกบันทึกใน Supabase เรียบร้อยแล้ว';
                     echo '<p>การเข้าสู่ระบบเสร็จสมบูรณ์แล้ว</p>';
-                    echo '<a href="changrutchayothln://HomePage">คลิกที่นี่เพื่อกลับไปยังแอป</a>';
+                    echo '<a href="changrutchayothln://changrutchayothin.com/HomePage">คลิกที่นี่เพื่อกลับไปยังแอป</a>';
                 } else {
                     echo 'ไม่สามารถบันทึกข้อมูลใน Supabase ได้: ' . htmlspecialchars(print_r($result, true));
                 }
