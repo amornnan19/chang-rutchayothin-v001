@@ -3,7 +3,7 @@
 // ค่าเหล่านี้ให้คุณแทนที่ด้วยข้อมูลจริงของคุณ
 $clientId = '2006525783';
 $clientSecret = 'cac877c5e22be00fb6b34178a93a4f5d';
-$redirectUri = 'https://chang-ruchayothin.test/callback.php';
+$redirectUri = 'https://www.owtsoft.com/callback.php';
 
 // ตรวจสอบว่ามี Authorization Code จากการอนุญาตหรือไม่
 if (isset($_GET['code'])) {

@@ -7,7 +7,7 @@ $supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 // ตั้งค่า Channel ID, Channel Secret, และ Redirect URI
 $clientId = '2006525783';
 $clientSecret = 'cac877c5e22be00fb6b34178a93a4f5d';
-$redirectUri = 'https://chang-ruchayothin.test/callback.php';
+$redirectUri = 'https://www.owtsoft.com/callback.php';
 
 // ตรวจสอบว่าได้รับ Authorization Code จากการอนุญาตหรือไม่
 if (isset($_GET['code'])) {
