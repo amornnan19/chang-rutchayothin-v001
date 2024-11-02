@@ -9,6 +9,7 @@ $clientId = '2006525783';
 $clientSecret = 'cac877c5e22be00fb6b34178a93a4f5d';
 $redirectUri = 'https://www.owtsoft.com/callback.php';
 
+$sessionToken = bin2hex(openssl_random_pseudo_bytes(16)); // สร้าง token แบบสุ่ม
 // ตรวจสอบว่าได้รับ Authorization Code จากการอนุญาตหรือไม่
 if (isset($_GET['code'])) {
     $authorizationCode = $_GET['code'];
@@ -51,8 +52,11 @@ if (isset($_GET['code'])) {
             $userData = [
                 'user_id' => $profileData['userId'],
                 'display_name' => $profileData['displayName'],
-                'picture_url' => $profileData['pictureUrl'] ?? null
+                'picture_url' => $profileData['pictureUrl'] ?? null,
+                'session_token' => $sessionToken // เพิ่ม session token
             ];
+
+            $redirectUri = "changrutchayothin://changrutchayothin.com/HomePage?session_token=" . urlencode($sessionToken);
 
             // ตรวจสอบว่าผู้ใช้มีอยู่แล้วใน Supabase หรือไม่
             $ch = curl_init();
@@ -87,7 +91,8 @@ if (isset($_GET['code'])) {
                 echo 'ข้อมูลผู้ใช้ถูกอัปเดตใน Supabase เรียบร้อยแล้ว';
                 echo '<p>การเข้าสู่ระบบเสร็จสมบูรณ์แล้ว</p>';
                 echo '<a href="changrutchayothin://changrutchayothin.com/HomePage">คลิกที่นี่เพื่อกลับไปยังแอป</a>';
-                header("Location: changrutchayothin://changrutchayothin.com/HomePage");
+
+                header("Location: $redirectUri");
                 exit();
             } else {
                 // ถ้าไม่มีผู้ใช้ ให้ทำการ Insert ข้อมูลใหม่
@@ -111,7 +116,7 @@ if (isset($_GET['code'])) {
                     echo 'ข้อมูลผู้ใช้ถูกบันทึกใน Supabase เรียบร้อยแล้ว';
                     echo '<p>การเข้าสู่ระบบเสร็จสมบูรณ์แล้ว</p>';
                     echo '<a href="changrutchayothin://changrutchayothin.com/HomePage">คลิกที่นี่เพื่อกลับไปยังแอป</a>';
-                    header("Location: changrutchayothin://changrutchayothin.com/HomePage");
+                    header("Location: $redirectUri");
                     exit();
                 } else {
                     echo 'ไม่สามารถบันทึกข้อมูลใน Supabase ได้: ' . htmlspecialchars(print_r($result, true));
