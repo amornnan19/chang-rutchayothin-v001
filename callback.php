@@ -56,7 +56,7 @@ if (isset($_GET['code'])) {
                 'session_token' => $sessionToken // เพิ่ม session token
             ];
 
-            $redirectUri = "changrutchayothin://changrutchayothin.com/HomePage?session_token=" . urlencode($sessionToken);
+            $redirectUri = "changrutchayothin://changrutchayothin.com/HomePage?sessionToken=" . urlencode($sessionToken);
 
             // ตรวจสอบว่าผู้ใช้มีอยู่แล้วใน Supabase หรือไม่
             $ch = curl_init();
