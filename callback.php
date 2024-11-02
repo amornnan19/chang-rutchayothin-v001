@@ -1,5 +1,9 @@
 <?php
 
+// ตั้งค่า Supabase URL และ API Key ของคุณ
+$supabaseUrl = 'https://jlhrexozxghiqobhcmaf.supabase.co';
+$supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpsaHJleG96eGdoaXFvYmhjbWFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA1NzM0MDQsImV4cCI6MjA0NjE0OTQwNH0.jWGCii4TGTw8QGMAYkf2IvDkjqGxwjis5XgGOMPc-AI';
+
 // ตั้งค่า Channel ID, Channel Secret, และ Redirect URI
 $clientId = '2006525783';
 $clientSecret = 'cac877c5e22be00fb6b34178a93a4f5d';
@@ -42,23 +46,39 @@ if (isset($_GET['code'])) {
 
         $profileData = json_decode($profileResponse, true);
 
-        session_start();
-        $_SESSION['user_data'] = $profileData;
-
-        // แสดงข้อมูลที่ได้รับกลับมาทั้งหมด
-        echo '<h2>Response from LINE Login API</h2>';
-        echo '<pre>' . htmlspecialchars(print_r($data, true)) . '</pre>';
-
-        echo '<h2>Profile Information from LINE</h2>';
-        echo '<pre>' . htmlspecialchars(print_r($profileData, true)) . '</pre>';
-
-        // แสดงรายละเอียดข้อมูลโปรไฟล์ในรูปแบบอ่านง่าย
         if (isset($profileData['userId'])) {
-            echo '<h3>User Information</h3>';
-            echo 'User ID: ' . htmlspecialchars($profileData['userId']) . '<br>';
-            echo 'Display Name: ' . htmlspecialchars($profileData['displayName']) . '<br>';
-            if (isset($profileData['pictureUrl'])) {
-                echo 'Profile Picture:<br><img src="' . htmlspecialchars($profileData['pictureUrl']) . '" alt="Profile Picture"><br>';
+            // เตรียมข้อมูลที่จะส่งไป Supabase
+            $userData = [
+                'user_id' => $profileData['userId'],
+                'display_name' => $profileData['displayName'],
+                'picture_url' => $profileData['pictureUrl'] ?? null
+            ];
+
+            // Step 3: ส่งข้อมูลไปยัง Supabase
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $supabaseUrl . '/rest/v1/users'); // ใช้ endpoint สำหรับตาราง users
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'apikey: ' . $supabaseKey,
+                'Authorization: Bearer ' . $supabaseKey,
+                'Prefer: return=representation'
+            ]);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($userData));
+
+            $supabaseResponse = curl_exec($ch);
+            curl_close($ch);
+
+            $result = json_decode($supabaseResponse, true);
+            if (isset($result[0])) {
+                echo 'ข้อมูลถูกเก็บใน Supabase เรียบร้อยแล้ว';
+
+                // หลังจากที่บันทึกข้อมูลลงใน Supabase เรียบร้อยแล้ว
+                header("Location: changrutchayothln://HomePage");
+                exit();
+            } else {
+                echo 'ไม่สามารถเก็บข้อมูลใน Supabase ได้: ' . htmlspecialchars(print_r($result, true));
             }
         } else {
             echo '<p>ไม่สามารถดึงข้อมูลโปรไฟล์ผู้ใช้ได้</p>';
